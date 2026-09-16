@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "plenec": {
+      "type": "http",
+      "url": "https://mcp.plenec.com/mcp",
+      "oauth": {
+        "authServerMetadataUrl": "https://mcp.plenec.com/.well-known/oauth-authorization-server",
+        "scopes": "openid profile email"
+      }
+    }
+  }
+}

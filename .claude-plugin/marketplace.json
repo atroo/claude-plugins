@@ -1,0 +1,27 @@
+{
+  "name": "atroo",
+  "owner": {
+    "name": "atroo"
+  },
+  "description": "Plugins published by atroo — connect Claude Code to Plenec, your company brain.",
+  "plugins": [
+    {
+      "name": "plenec",
+      "displayName": "Plenec",
+      "description": "Your company brain in Claude Code: search past decisions and ADRs, file and resolve bugs, track features and tasks, and write what you learn back to the team.",
+      "author": {
+        "name": "atroo"
+      },
+      "category": "productivity",
+      "source": "./plugins/plenec",
+      "homepage": "https://github.com/atroo/claude-plugins/tree/main/plugins/plenec",
+      "keywords": [
+        "knowledge-base",
+        "adr",
+        "bug-tracking",
+        "project-management",
+        "documentation"
+      ]
+    }
+  ]
+}
