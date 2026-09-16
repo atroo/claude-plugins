@@ -21,9 +21,18 @@ session can read what the team already decided and write back what it learns.
 /plugin install plenec@atroo
 ```
 
-On first use, Claude Code opens your browser to sign in to Plenec — run `/mcp` and
-pick `plenec` if it does not prompt on its own. No API key or token to copy: the
-connection uses OAuth, and your session is stored by Claude Code.
+Installing the plugin registers the Plenec MCP server for you — there is no separate
+`claude mcp add` step. Sign in once:
+
+```
+claude mcp login plenec
+```
+
+or run `/mcp` inside a session and pick `plenec`. Your browser opens, you sign in at
+login.atroo.de, and Claude Code stores the session. No API key or token to copy.
+
+On a machine with no browser (SSH, a headless Linux box), add `--no-browser` and paste
+the redirect URL back at the prompt.
 
 You need a Plenec account. <!-- TODO: link the signup page here -->
 
@@ -31,26 +40,26 @@ You need a Plenec account. <!-- TODO: link the signup page here -->
 Why .mcp.json carries an `oauth` block.
 
 mcp.plenec.com is the resource server; https://login.atroo.de (Zitadel) is the
-authorization server, and its protected-resource metadata correctly says so. But
-Zitadel has no dynamic client registration (zitadel/zitadel#9810), so a client that
-follows RFC 9728 discovery to Zitadel's own metadata finds no registration_endpoint
-and stops at "Incompatible auth server".
+authorization server, and the protected-resource metadata correctly says so. Zitadel
+has no dynamic client registration (zitadel/zitadel#9810), so a client that tries to
+register its own credentials stops at "Incompatible auth server". Plenec therefore
+uses one pre-registered PUBLIC client, and the plugin pins it:
 
-mcp.plenec.com therefore serves an augmented copy of that metadata at
-/.well-known/oauth-authorization-server: Zitadel's real authorize/token endpoints,
-plus a registration_endpoint pointing at its own /oauth/register, which hands every
-client one pre-registered public client_id. `authServerMetadataUrl` routes discovery
-through that document — the documented use of the option, not a hack around it.
+  clientId      379123512457038559 — a public client: PKCE, no secret, and
+                /oauth/register hands the same id to anyone who asks. Safe in a
+                public repository; that is what a public client is for.
+  callbackPort  8765 — Claude Code otherwise picks a random port, and Zitadel
+                exact-matches redirect URIs. http://localhost:8765/callback must
+                stay registered on that client, or every sign-in fails with a
+                redirect URI mismatch.
 
-Two things to know before changing it:
-  - `scopes` is pinned because a configured metadata URL supplies its whole
-    scopes_supported, and that document advertises phone and address as well.
-  - the augmented document declares issuer https://login.atroo.de while being served
-    from mcp.plenec.com, which RFC 8414 §3.3 says a client may reject. Claude Code
-    accepts it for an explicitly configured metadata URL. A client that enforces the
-    check would need a different route in.
+Changing the port here means changing it in Zitadel too. On Claude Code v2.1.229
+only, the callback was sent as http://127.0.0.1:PORT/callback — upgrade, or register
+that form as well.
 
-This block goes away if Zitadel ever ships real DCR, and not before.
+No scopes are pinned: without an authServerMetadataUrl override, Claude Code takes
+them from the protected-resource metadata, which lists exactly openid, profile,
+email and offline_access.
 -->
 
 ## Getting started
